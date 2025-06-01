@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INode - Rete Mesh del Futuro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00d4ff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* Sfondo animato con particelle */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(0, 150, 255, 0.1) 0%, transparent 50%);
+        }
+        
+        .hexagon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 212, 255, 0.1);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .hexagon:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .hexagon:nth-child(2) { top: 60%; left: 5%; animation-delay: 2s; }
+        .hexagon:nth-child(3) { top: 20%; right: 10%; animation-delay: 4s; }
+        .hexagon:nth-child(4) { bottom: 20%; right: 15%; animation-delay: 1s; }
+        .hexagon:nth-child(5) { bottom: 10%; left: 30%; animation-delay: 3s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            letter-spacing: 3px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+        }
+        
+        .nav-links a:hover {
+            color: #ffffff;
+            border: 1px solid #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero-content h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
+            to { text-shadow: 0 0 50px rgba(0, 212, 255, 1), 0 0 60px rgba(0, 150, 255, 0.8); }
+        }
+        
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            color: #a0a0a0;
+            max-width: 600px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: linear-gradient(45deg, #00d4ff, #0096ff);
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.5);
+            background: linear-gradient(45deg, #ffffff, #00d4ff);
+        }
+        
+        /* Sezioni */
+        .section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section h2 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+        }
+        
+        /* Grid delle features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .feature-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+        
+        .feature-card:hover::before {
+            opacity: 1;
+            animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .feature-card:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+        
+        .feature-card p {
+            color: #a0a0a0;
+            line-height: 1.6;
+        }
+        
+        /* Video embed styling */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+            margin: 1rem 0;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Stats section */
+        .stats {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4rem 2rem;
+            margin: 5rem 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #00d4ff;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 3rem 2rem 1rem;
+            border-top: 2px solid rgba(0, 212, 255, 0.3);
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer p {
+            color: #a0a0a0;
+            margin-bottom: 1rem;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .social-links a {
+            color: #00d4ff;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .section h2 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Scrollbar personalizzata */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #00d4ff, #0096ff);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #ffffff, #00d4ff);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sfondo particelle -->
+    <div class="bg-particles">
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+        <div class="hexagon"></div>
+    </div>
+    
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">INODE</div>
+            <ul class="nav-links">
+                <li><a href="#home">HOME</a></li>
+                <li><a href="#features">TECNOLOGIA</a></li>
+                <li><a href="#products">VIDEO</a></li>
+                <li><a href="#stats">STATS</a></li>
+                <li><a href="#contact">CONTATTI</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>RETE MESH DEL FUTURO</h1>
+            <p>Comunicazione universale tramite nodi radio intelligenti - connetti chiunque, ovunque</p>
+            <a href="#features" class="cta-button">ESPLORA ORA</a>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <h2>CARATTERISTICHE INNOVATIVE</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>INode</h3>
+                <p>INode è un progetto tratto dalla spontanea evoluzione della rete mesh che abbiamo visto evolversi nel tempo dalla fonera fino alla più innovativa tecnologia satellitare di Elon Musk denominata "Star Link".
+INode s'interpone nel mezzo sfruttando una tecnologia già esistente ma spesso sottovalutata, ovvero le onde radio, la frequenza che viaggia in vari nodi, consentendo appunto la comunicazione tra tante persone in qualsiasi luogo.
+In qualsiasi luogo, esattamente così, creando un nodo, con un kit particolare, e creando determinati nodi in un luogo sprovvisto di tecnologia, come ad esempio nel bel mezzo del deserto, le persone tramite un'app e/o una mini radio (in modo d'abbinare il nuovo al vecchio e viceversa) possono trasmettere sia messaggi testuali sia messaggi vocali. Tante volte si è parlato di walkie talkie, di app che si collegavano tramite Bluetooth, ma questa tecnologia non è mai stata sfruttata pienamente, venendo per anni accantonata. E se si rendesse tutto più smart? Dove ogni persona, con dovuti consensi può creare un nodo permanente o temporaneo, immaginiamo quante zone, quante persone riuscirebbero ad essere coperte da una tecnologia semplice che consente di mettere in comunicazione chiunque in qualsiasi posto. INode, vuole consentire proprio questo, sfruttare anche quei segnali a bassa frequenza, spesso ignorati, per creare un sistema senza ridondanze, e soprattutto basato sul buon senso, dallo studio del luogo, se ha tanti nodi o meno, se la creazione di nodi può comprometterne altri e viceversa. Il consenso, viene fornito da un funzionario che controlla il tutto, questo può essere un funzionario tecnico free agent, un funzionario aziendale, piuttosto perché no, un vero e funzionario comunale, creando così una doppia figura: il Noderator (nome tratto da moderator di nodi) che controlla e concede il consenso o meno del nodo studiandone anche la topologia (disposizione dei nodi, topologia a stella, ad anello, ad albero), e l'iNoder che crea un nodo. Due figure lavorative nuove in un mondo che ne concede sempre meno non può essere che esclusivamente un bene, ponendo la tecnologia in uno stato ecosostenibile, basandosi sul buon senso, sull'ottimizzazione e sull'abbattimento dell'eccesso e del superfluo, generando una tecnologia puramente "armoniosa e armonica".</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚐</div>
+                <h3>CamperNode</h3>
+                <p>I nodi possono essere temporanei o fissi, ma perché non mobili?
+La mobilità consentirebbe di creare una topologia nodale basata sui cambiamenti del territorio, al mutamento dell'ambiente cambia anche l'assetto nodale.
+In questa concezione entrano in campo i camper, camperisti iNoder ufficiali che montano un'antenna sul proprio camper, disponendosi in maniera strategica sul territorio possono formare una determinata topologia nodale (a stella, anulare, ecc.).
+In questo modo, in una zona disastrata da un cataclisma o un evento naturale non previsto, inviando i camper, non ci sarebbero perdite di tempo dovute all'installazione, nel caso in cui le zone sono raggiungibili solo via mare, al posto dei camper degli aliscafi o altri tipi d'imbarcazione veloci per portare il segnale ovunque rapidamente. In questo modo il territorio non riuscirebbe a scappare dalla tecnologia. In questo caso, il noderator costituisce una figura importante che crea una rete intelligente nodale e modulare, che si adatta al territorio con costanza.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📻</div>
+                <h3>RadioLina</h3>
+                <p>RadioLina è stata pensata come un piccolo dispositivo che oltre a ricevere chiamate vocali in stile walkie talkie, predispone anche di un display per ricevere e inviare messaggi di testo, alcuni messaggi sono preimpostati per richiedere aiuto o segnalare qualsiasi tipo di evento.
+Inoltre cosa importante, può emettere dei segnali radio che fungono da richiesta di aiuto, diventando un vero "salvavita", che segnala la propria presenza ad altri dispositivi e nodi.
+Laddove le onde radio non possono arrivare, grazie alla sim integrata con connettività 5g, si può comunicare anche in posti dove ci sono muri o altri elementi che ostacolano la comunicazione.
+Immaginiamo una persona che a seguito di un terremoto si trova sotto le macerie, RadioLina diventa un ottimo salvavita per indicare la propria posizione e magari comunicare anche tramite un allert preimpostato in che condizioni ci si ritrova (esempio: limitata ossigenazione, fratture, immobilitato, mobilizzazione limitata, ecc.).
+RadioLina non si sofferma solo a questa applicazione, ma potrebbe essere utilizzata per tanti eventi anche più felici, un concerto o un grosso evento con milioni di persone, dove si può comunicare la posizione ad amici e parenti.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎥</div>
+                <h3>VIDEO PRESENTAZIONE</h3>
+                <p>Scopri INode in azione attraverso questo video dimostrativo che illustra le potenzialità della nostra rete mesh del futuro.</p>
+                <div class="video-container">
+                    <iframe src="https://www.youtube.com/embed/rVKgY-kGsYI?rel=0&modestbranding=1" 
+                            title="INode - Rete Mesh del Futuro" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="stats" id="stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Zone Non Coperte</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Eco-Sostenibile</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Possibilità di Connessione</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Nuove Professioni</div>
+            </div>
+        </div>
+    </section>
+    
+
+    
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="footer-content">
+            <p>&copy; 2025 INode - Ferdinando De Martino - Rete Mesh del Futuro. Connettendo il mondo attraverso l'innovazione.</p>
+            <div class="social-links">
+                <a href="#">📧</a>
+                <a href="#">🔗</a>
+                <a href="#">📱</a>
+            </div>
+            <p>Tecnologia eco-sostenibile per un futuro connesso</p>
+        </div>
+    </footer>
+</body>
+</html>
